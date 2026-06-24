@@ -52,18 +52,37 @@ export const CAMERA_QUATERNION = new Quaternion(
 );
 export const CAMERA_TARGET = new Vector3(0, 2.5, 0);
 
-//Carpet
-export const CARPET_SHELLCOUNT = 32;
-export const CARPET_UNIFORMS = {
-  uColor: new Color(0.7529412, 0.5424671, 0.4392157).convertSRGBToLinear(),
-  uShellCount: 32,
-  uShellLength: 0.16,
-  uDensity: 250,
-  uThickness: 5,
+// Room palette accents
+export const ROOM_PALETTE = {
+  wallColor: new Color(0x6d5848).convertSRGBToLinear(),
+  poufColor: new Color(0x061833).convertSRGBToLinear(),
+  underglowColor: new Color(0xff4faf).convertSRGBToLinear(),
 };
-export const CARPET_GROUP_SCALE = new Vector3(0.0355, 0.0355, 0.0355);
-export const CARPET_GROUP_POSITION = new Vector3(-2.61408, 0.377, -0.904327);
-export const CARPET_GROUP_ROTATION = new Euler(-Math.PI / 2, 0, 0);
+export const DESK_UNDERGLOW_PLANES = [
+  {
+    size: new Vector2(3.25, 1.55),
+    position: new Vector3(1.45, 0.045, -2.55),
+    rotation: new Euler(-Math.PI / 2, 0, 0),
+    opacity: 0.48,
+  },
+  {
+    size: new Vector2(3.0, 0.78),
+    position: new Vector3(1.45, 0.68, -3.55),
+    rotation: new Euler(0, 0, 0),
+    opacity: 0.3,
+  },
+  {
+    size: new Vector2(2.6, 0.9),
+    position: new Vector3(1.35, 0.75, -1.55),
+    rotation: new Euler(0, 0, 0),
+    opacity: 0.4,
+  },
+];
+
+// Rug
+export const RUG_SIZE = new Vector2(5.35, 3.35);
+export const RUG_POSITION = new Vector3(-2.61408, 0.035, -0.904327);
+export const RUG_ROTATION = new Euler(-Math.PI / 2, 0, 0);
 
 //  Coffee
 export const COFFEE_GEOMETRY = new PlaneGeometry(0.15, 0.6, 16, 64);

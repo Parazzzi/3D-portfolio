@@ -39,6 +39,11 @@ export default [
         source: "/assets/textures/texture_paint.png",
         type: "texture",
       },
+      {
+        name: "persianRugTexture",
+        source: "/assets/textures/persian-rug.png",
+        type: "texture",
+      },
       { name: "_roomModel", source: "/assets/models/room.glb" },
       { name: "_roomModel2", source: "/assets/models/room2.glb" },
       { name: "_roomModel3", source: "/assets/models/room3.glb" },

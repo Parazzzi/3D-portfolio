@@ -1,54 +1,43 @@
-import { Group, ShaderMaterial, DoubleSide, PlaneGeometry, Mesh } from "three";
+import {
+  DoubleSide,
+  Mesh,
+  MeshBasicMaterial,
+  PlaneGeometry,
+  SRGBColorSpace,
+} from "three";
 
 import Experience from "./Experience.js";
-import fragmentShaderCarpet from "./shaders/shellTexturingCarpet/fragment.glsl";
-import vertexShaderCarpet from "./shaders/shellTexturingCarpet/vertex.glsl";
-import {
-  CARPET_UNIFORMS,
-  CARPET_SHELLCOUNT,
-  CARPET_GROUP_SCALE,
-  CARPET_GROUP_POSITION,
-  CARPET_GROUP_ROTATION,
-} from "./constants.js";
+import { RUG_POSITION, RUG_ROTATION, RUG_SIZE } from "./constants.js";
 
 export default class Carpet {
   constructor() {
     this.experience = new Experience();
     this.scene = this.experience.scene;
-    this.carpetGroup = new Group();
+    this.resources = this.experience.resources;
+    this.renderer = this.experience.renderer.instance;
+    this.maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
     this.setCarpet();
   }
 
   setCarpet() {
-    const shellCount = CARPET_SHELLCOUNT;
-    for (let i = 0; i < shellCount; ++i) {
-      const shaderMaterial = new ShaderMaterial({
-        vertexShader: vertexShaderCarpet,
-        fragmentShader: fragmentShaderCarpet,
-        side: DoubleSide,
-        uniforms: {
-          uColor: {
-            value: CARPET_UNIFORMS.uColor,
-          },
-          uShellCount: { value: CARPET_UNIFORMS.uShellCount },
-          uShellIndex: { value: i },
-          uShellLength: { value: CARPET_UNIFORMS.uShellLength },
-          uDensity: { value: CARPET_UNIFORMS.uDensity },
-          uThickness: { value: CARPET_UNIFORMS.uThickness },
-        },
-      });
+    const texture = this.resources.items.persianRugTexture;
+    texture.anisotropy = this.maxAnisotropy;
+    texture.colorSpace = SRGBColorSpace;
+    texture.needsUpdate = true;
 
-      const planeGeom = new PlaneGeometry(100, 100);
-      const planeMesh = new Mesh(planeGeom, shaderMaterial);
-      planeMesh.rotation.copy(CARPET_GROUP_ROTATION);
-      planeMesh.position.y = -10 + i * 0.1;
-      planeMesh.receiveShadow = true;
-      planeMesh.castShadow = true;
-      this.carpetGroup.add(planeMesh);
-    }
-    this.carpetGroup.name = "Carpet";
-    this.carpetGroup.scale.copy(CARPET_GROUP_SCALE);
-    this.carpetGroup.position.copy(CARPET_GROUP_POSITION);
-    this.scene.add(this.carpetGroup);
+    const geometry = new PlaneGeometry(RUG_SIZE.x, RUG_SIZE.y);
+    const material = new MeshBasicMaterial({
+      map: texture,
+      side: DoubleSide,
+    });
+
+    this.carpet = new Mesh(geometry, material);
+    this.carpet.name = "PersianRug";
+    this.carpet.rotation.copy(RUG_ROTATION);
+    this.carpet.position.copy(RUG_POSITION);
+    this.carpet.renderOrder = 2;
+    this.carpet.receiveShadow = true;
+
+    this.scene.add(this.carpet);
   }
 }
