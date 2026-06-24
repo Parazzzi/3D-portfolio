@@ -27,6 +27,7 @@ export default class Resources extends EventEmitter {
     this.loadingScreen = document.querySelector(".loadingScreen");
     this.audioButton = document.querySelector(".audio-button");
     this.loadingScreen.classList.add("show-loading-screen");
+    this.hasStarted = false;
 
     this.experience = new Experience();
     this.renderer = this.experience.renderer.instance;
@@ -189,6 +190,28 @@ export default class Resources extends EventEmitter {
     });
   };
 
+  startExperience = () => {
+    if (this.hasStarted) {
+      return;
+    }
+
+    const audioManager = this.experience.world?.audioManager;
+    const orbitControls = this.experience.navigation?.orbitControls;
+
+    if (!audioManager || !orbitControls) {
+      window.requestAnimationFrame(this.startExperience);
+      return;
+    }
+
+    this.hasStarted = true;
+    audioManager.playSingleAudio("start", 0.4);
+    audioManager.playLoopAudio("floral", 0.1);
+    this.audioButton.classList.add("show-audio-button");
+    this.loadingScreen.style.cursor = "default";
+    this.loadingScreen.classList.remove("show-loading-screen");
+    this.removeOverlay();
+  };
+
   /**
    * Load
    */
@@ -231,34 +254,15 @@ export default class Resources extends EventEmitter {
     this.loaded++;
     this.items[_resource.name] = _data;
     const degrees = (this.loaded / this.toLoad) * 360;
+    const isComplete = this.loaded === this.toLoad;
 
     this.loadingScreen.style.setProperty("--p", degrees + "deg");
-    if (this.loaded == this.toLoad) {
-      this.loadingScreen.classList.add("finished-load");
-
-      setTimeout(() => {
-        this.loadingScreen.textContent = "START";
-        this.loadingScreen.style.cursor = "pointer";
-        this.loadingScreen.classList.add("loading-screen-hover");
-        this.loadingScreen.classList.remove("finished-load");
-
-        const clickHandler = () => {
-          const audioManager = this.experience.world.audioManager;
-          audioManager.playSingleAudio("start", 0.4);
-          audioManager.playLoopAudio("floral", 0.1);
-          this.audioButton.classList.add("show-audio-button");
-          this.loadingScreen.classList.remove("show-loading-screen");
-          this.removeOverlay();
-          this.loadingScreen.removeEventListener("click", clickHandler);
-        };
-        this.loadingScreen.addEventListener("click", clickHandler);
-      }, 1000);
-    }
 
     this.trigger("fileEnd", [_resource, _data]);
 
-    if (this.loaded === this.toLoad) {
+    if (isComplete) {
       this.trigger("end");
+      window.requestAnimationFrame(this.startExperience);
     }
   }
 }

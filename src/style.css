@@ -233,14 +233,6 @@ body {
     font-size 0.5s ease;
 }
 
-.loading-screen-hover:hover {
-  font-size: 2.5em;
-}
-
-.finished-load {
-  color: #0a3362 !important;
-}
-
 .show-loading-screen {
   visibility: visible;
   opacity: 1;
