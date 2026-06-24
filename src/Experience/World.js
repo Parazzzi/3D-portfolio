@@ -4,6 +4,7 @@ import CoffeeSteam from "./CoffeeSteam.js";
 import TopChair from "./TopChair.js";
 import Whiteboard from "./Whiteboard.js";
 import Carpet from "./Carpet.js";
+import ShelfClapperLabel from "./ShelfClapperLabel.js";
 import ArcadeScreen from "./ArcadeScreen.js";
 import LeftMonitorScreen from "./LeftMonitorScreen.js";
 import RightMonitorScreen from "./RightMonitorScreen.js";
@@ -25,6 +26,7 @@ export default class World {
       if (_group.name === "base") {
         this.setAudioManager();
         this.setBaked();
+        this.setShelfClapperLabel();
         this.setWhiteboard();
         this.setCarpet();
         this.setArcadeScreen();
@@ -71,6 +73,10 @@ export default class World {
     this.carpet = new Carpet();
   }
 
+  setShelfClapperLabel() {
+    this.shelfClapperLabel = new ShelfClapperLabel();
+  }
+
   setArcadeScreen() {
     this.arcadeScreen = new ArcadeScreen();
   }
@@ -93,6 +99,7 @@ export default class World {
     if (this.topChair) this.topChair.update();
     if (this.rubiksCube) this.rubiksCube.update();
     if (this.skybox) this.skybox.update();
+    if (this.arcadeScreen) this.arcadeScreen.update();
     if (this.leftMonitorScreen) this.leftMonitorScreen.update();
     if (this.rightMonitorScreen) this.rightMonitorScreen.update();
     if (this.confetti) this.confetti.update();

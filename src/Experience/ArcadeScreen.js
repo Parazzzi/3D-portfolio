@@ -32,11 +32,15 @@ export default class ArcadeScreen {
     this.scene = this.experience.scene;
     this.resources = this.experience.resources;
     this.mouse = this.experience.mouse;
+    this.raycaster = this.experience.raycaster;
+    this.camera = this.experience.camera;
     this.screenSize = new Vector2(ARCADE_SCREEN_WIDTH, ARCADE_SCREEN_HEIGHT);
     this.model = {};
     this.arcadeMachineMaterial = this.experience.world.baked.model.material2;
     this.maxAnisotropy = this.renderer.capabilities.getMaxAnisotropy();
     this.audioManager = this.experience.world.audioManager;
+    this.isActive = false;
+    this.objectRaycasted = null;
     this.setModel();
     this.setArcadeScreen();
   }
@@ -69,6 +73,7 @@ export default class ArcadeScreen {
     iframe.style.boxSizing = "border-box";
     iframe.style.background = "black";
     container.appendChild(iframe);
+    this.iframe = iframe;
     iframe.addEventListener("load", () => {
       this.iframeWindow = iframe.contentWindow;
     });
@@ -127,6 +132,9 @@ export default class ArcadeScreen {
   };
 
   handleKeyDownParent = (event) => {
+    if (!this.iframeWindow) {
+      return;
+    }
     this.iframeWindow.postMessage(
       { type: "keyDownParent", key: event.key },
       "*"
@@ -134,15 +142,35 @@ export default class ArcadeScreen {
   };
 
   handleKeyUpParent = (event) => {
+    if (!this.iframeWindow) {
+      return;
+    }
     this.iframeWindow.postMessage({ type: "keyUpParent", key: event.key }, "*");
   };
 
-  onMouseMove = () => {
-    if (
+  handleWheelParent = (event) => {
+    if (!this.isPointerOverScreen() || !this.iframeWindow) {
+      return;
+    }
+
+    event.preventDefault();
+    this.iframeWindow.scrollBy({
+      left: event.deltaX,
+      top: event.deltaY,
+      behavior: "auto",
+    });
+  };
+
+  isPointerOverScreen = () => {
+    return (
       this.objectRaycasted &&
       this.objectRaycasted.object &&
-      this.objectRaycasted.object.name == "arcadeMachine"
-    ) {
+      this.objectRaycasted.object.name == "arcadeMachineScreen"
+    );
+  };
+
+  onMouseMove = () => {
+    if (this.isPointerOverScreen()) {
       this.experience.navigation.orbitControls.enableDamping = false;
       this.experience.navigation.orbitControls.enabled = false;
       this.webglElement.style.pointerEvents = "none";
@@ -156,15 +184,23 @@ export default class ArcadeScreen {
   activateControls = () => {
     window.addEventListener("keydown", this.handleKeyDownParent);
     window.addEventListener("keyup", this.handleKeyUpParent);
+    window.addEventListener("wheel", this.handleWheelParent, {
+      passive: false,
+    });
     window.addEventListener("pointermove", this.onMouseMove);
     window.addEventListener("message", this.receiveMessage, false);
+    this.isActive = true;
     this.onMouseMove();
   };
   deactivateControls = () => {
     window.removeEventListener("keydown", this.handleKeyDownParent);
     window.removeEventListener("keyup", this.handleKeyUpParent);
+    window.removeEventListener("wheel", this.handleWheelParent);
     window.removeEventListener("pointermove", this.onMouseMove);
     window.removeEventListener("message", this.receiveMessage, false);
+    this.isActive = false;
+    this.objectRaycasted = null;
+    this.webglElement.style.pointerEvents = "auto";
   };
   receiveMessage = (event) => {
     if (event.data == "hit") {
@@ -179,4 +215,16 @@ export default class ArcadeScreen {
       this.audioManager.playSingleAudio("select2", 1);
     }
   };
+
+  update() {
+    if (!this.isActive) {
+      return;
+    }
+    this.raycaster.setFromCamera(this.mouse, this.camera.instance);
+    const intersects = this.raycaster.intersectObjects(
+      this.scene.children,
+      true
+    );
+    this.objectRaycasted = intersects.length > 0 ? intersects[0] : null;
+  }
 }

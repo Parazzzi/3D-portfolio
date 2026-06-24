@@ -63,6 +63,11 @@ export default class Baked {
     this.setMaterial(this.model.github, this.model.material3);
     this.setMaterial(this.model.itchio, this.model.material3);
 
+    const originalShelfClapper = this.model.room3.getObjectByName("Claqueta.002");
+    if (originalShelfClapper) {
+      originalShelfClapper.visible = false;
+    }
+
     this.scene.add(this.model.room1);
     this.scene.add(this.model.room2);
     this.scene.add(this.model.room3);
